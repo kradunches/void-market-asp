@@ -5,9 +5,12 @@ namespace UserService.Models;
 
 public class User
 {
+    /// <summary>
+    /// GUID id
+    /// </summary>
     [BsonId]
     [BsonRepresentation(BsonType.String)]
-    public string Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     
     [BsonElement("name")]
     public string Name { get; set; }

@@ -29,21 +29,20 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> Create(User user)
+    public async Task<ActionResult<User>> Create(UserDto userDto)
     {
-        user.CreatedAt = DateTime.UtcNow;
-        user.UpdatedAt = DateTime.UtcNow;
-        await _userRepository.CreateAsync(user);
-        return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+        var createdUser = await _userRepository.CreateAsync(userDto);
+        
+        return CreatedAtAction(nameof(Get), new { id = createdUser.Id }, createdUser);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, User userIn)
+    public async Task<IActionResult> Update(string id, UserDto userDto)
     {
-        var user = await _userRepository.GetByIdAsync(id);
-        if (user == null) return NotFound();
-        userIn.UpdatedAt = DateTime.UtcNow;
-        await _userRepository.UpdateAsync(id, userIn);
+        var updated = await _userRepository.UpdateAsync(id, userDto);
+
+        if (!updated) return NotFound();
+
         return NoContent();
     }
 
