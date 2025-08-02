@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using OrderService.Consumers;
 using OrderService.Data;
 using OrderService.Extensions;
 using OrderService.Services;
@@ -25,12 +26,20 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddMassTransit(x =>
 {
-    x.UsingRabbitMq((ContextBoundObject, cfg) =>
+    x.AddConsumer<OrderStatusUpdatedConsumer>();
+    
+    x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
+        });
+        
+        // Настройка очереди order-status
+        cfg.ReceiveEndpoint("order-status", e =>
+        {
+            e.ConfigureConsumer<OrderStatusUpdatedConsumer>(context);
         });
     });
 });
