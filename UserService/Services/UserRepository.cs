@@ -9,9 +9,8 @@ public class UserRepository
     private readonly IMongoCollection<User> _users;
     private readonly IMapper _mapper;
 
-    public UserRepository(IConfiguration configuration, IMapper mapper)
+    public UserRepository(IMongoClient client, IConfiguration configuration, IMapper mapper)
     {
-        var client = new MongoClient(configuration["MongoDB:ConnectionString"]);
         var database = client.GetDatabase(configuration["MongoDB:DatabaseName"]);
         _users = database.GetCollection<User>(configuration["MongoDB:CollectionName"]);
         _mapper = mapper;

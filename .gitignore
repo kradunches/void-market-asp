@@ -1,9 +1,11 @@
+.vs
+*.csproj.user
 bin/
 obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
 /.idea/.idea.void-market-asp/.idea/
-/microservices docker composes/postgres/order_pg_data/
-/microservices docker composes/rabbitmq/rabbitmq_data/
+/pg_void_asp_data/
+/rabbitmq_void_asp_data/
 /void-market-asp.sln.DotSettings.user

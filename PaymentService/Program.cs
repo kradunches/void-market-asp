@@ -13,14 +13,20 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
-builder.Services.AddRabbitMq(builder.Configuration);
+builder.Services.AddRabbitMq(builder.Configuration, builder.Environment);
 
 builder.Services.Configure<ServiceUrlsOptions>(builder.Configuration.GetSection("ServiceUrls"));
 
 builder.Services.AddHttpClient<IOrderServiceClient, OrderServiceClient>((serviceProvider, client) =>
 {
-    var options = serviceProvider.GetRequiredService<IOptions<ServiceUrlsOptions>>();
-    client.BaseAddress = new Uri(options.Value.OrderService);
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
+    
+    var orderServiceUrl = environment.IsDevelopment()
+        ? configuration["ServiceUrls:LocalOrderService"]
+        : configuration["ServiceUrls:DockerOrderService"];
+        
+    client.BaseAddress = new Uri(orderServiceUrl);
 });
 
 var app = builder.Build();
