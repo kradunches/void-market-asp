@@ -16,28 +16,29 @@ public class UserController : ControllerBase
         _userRepository = userRepository;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<List<User>>> Get() =>
+    [HttpGet("all")]
+    public async Task<ActionResult<List<UserDto>>> GetAll() =>
         await _userRepository.GetAllAsync();
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> Get(string id)
+    public async Task<ActionResult<UserDto>> GetById(string id)
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null) return NotFound();
+        
         return user;
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> Create(UserDto userDto)
+    public async Task<ActionResult<User>> Create(UserCreateDto userDto)
     {
         var createdUser = await _userRepository.CreateAsync(userDto);
         
-        return CreatedAtAction(nameof(Get), new { id = createdUser.Id }, createdUser);
+        return CreatedAtAction(nameof(GetAll), new { id = createdUser.Id }, createdUser);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, UserDto userDto)
+    public async Task<IActionResult> Update(string id, UserCreateDto userDto)
     {
         var updated = await _userRepository.UpdateAsync(id, userDto);
 
@@ -52,6 +53,7 @@ public class UserController : ControllerBase
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null) return NotFound();
         await _userRepository.DeleteAsync(id);
+        
         return NoContent();
     }
 }

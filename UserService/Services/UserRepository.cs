@@ -1,4 +1,5 @@
 using AutoMapper;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using UserService.Models;
 
@@ -16,13 +17,23 @@ public class UserRepository
         _mapper = mapper;
     }
 
-    public async Task<List<User>> GetAllAsync() =>
-        await _users.Find(u => true).ToListAsync();
+    public async Task<List<UserDto>> GetAllAsync()
+    {
+        var userModels = await _users.Find(u => true).ToListAsync();
 
-    public async Task<User> GetByIdAsync(string id) =>
-        await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+        return _mapper.Map<List<UserDto>>(userModels);
+    }
 
-    public async Task<User> CreateAsync(UserDto user)
+    public async Task<UserDto> GetByIdAsync(string id)
+    {
+        if (!ObjectId.TryParse(id, out var objectId))
+            return null;
+        var userModel = await _users.Find(u => u.Id == objectId).FirstOrDefaultAsync();
+        
+        return _mapper.Map<UserDto>(userModel);
+    }
+
+    public async Task<User> CreateAsync(UserCreateDto user)
     {
         var userModel = _mapper.Map<User>(user);
         userModel.Name = user.Name;
@@ -33,25 +44,42 @@ public class UserRepository
         return userModel;
     }
 
-    public async Task<bool> UpdateAsync(string id, UserDto userDto)
+    public async Task<bool> UpdateAsync(string id, UserCreateDto userDto)
     {
-        var user = await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
-
-        if (user == null)
+        if (!ObjectId.TryParse(id, out var objectId))
             return false;
 
-        var updatedUser = _mapper.Map<User>(userDto);
+        var update = Builders<User>.Update
+            .Set(u => u.Name, userDto.Name)
+            .Set(u => u.Email, userDto.Email)
+            .Set(u => u.UpdatedAt, DateTime.UtcNow);
 
-        updatedUser.UpdatedAt = DateTime.UtcNow;
+        var result = await _users.UpdateOneAsync(u => u.Id == objectId, update);
 
-        await _users.ReplaceOneAsync(u => u.Id == id, updatedUser);
+        return result.MatchedCount == 1;
 
-        return true;
+        // var user = await _users.Find(u => u.Id == objectId).FirstOrDefaultAsync();
+        //
+        // if (user == null)
+        //     return false;
+        //
+        // var updatedUser = _mapper.Map<User>(userDto);
+        //
+        // updatedUser.Name = userDto.Name;
+        // updatedUser.Email = userDto.Email;
+        // updatedUser.UpdatedAt = DateTime.UtcNow;
+        //
+        // await _users.ReplaceOneAsync(u => u.Id == objectId, updatedUser);
+        //
+        // return true;
     }
 
     public async Task<bool> DeleteAsync(string id)
     {
-        var result = await _users.DeleteOneAsync(u => u.Id == id);
+        if (!ObjectId.TryParse(id, out var objectId))
+            return false;
+        
+        var result = await _users.DeleteOneAsync(u => u.Id == objectId);
 
         return result.DeletedCount == 1;
     }
