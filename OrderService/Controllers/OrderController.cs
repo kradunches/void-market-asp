@@ -19,69 +19,80 @@ public class OrderController : ControllerBase
         _orderService = orderService;
     }
 
-    [HttpGet("GetOrders")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<OrderDto>))]
-    public async Task<IResult> GetAllOrdersAsync()
+    [HttpGet("all")]
+    [ProducesResponseType(200, Type = typeof(PagedOrdersResponseDto))]
+    public async Task<ActionResult<PagedOrdersResponseDto>> GetAllPagedAsync([FromQuery] int offset = 0,
+        [FromQuery] int limit = 10)
     {
-        var orderDtos = await _orderService.GetAllOrdersAsync();
+        if (offset < 0 || limit <= 0) 
+            return BadRequest("Invalid pagination parameters.");
 
-        if (!ModelState.IsValid)
-        {
-            return Results.BadRequest(ModelState);
-        }
+        var result = await _orderService.GetPagedOrdersAsync(offset, limit);
 
-        return TypedResults.Ok(orderDtos);
+        return Ok(result);
     }
 
-    [HttpGet("GetOrder/{id}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(200, Type = typeof(OrderDto))]
     [ProducesResponseType(404)]
-    public async Task<IResult> GetOrderByIdAsync(int id)
+    public async Task<ActionResult<OrderDto>> GetOrderByIdAsync(int id)
     {
         if (!ModelState.IsValid)
         {
-            return Results.BadRequest(ModelState);
+            return BadRequest(ModelState);
         }
 
         try
         {
             var orderDto = await _orderService.GetOrderByIdAsync(id);
-            return TypedResults.Ok(orderDto);
+            return Ok(orderDto);
         }
         catch (InvalidOperationException)
         {
-            return Results.NotFound($"Order with Id: {id} not found");
+            return NotFound($"Order with Id: {id} not found");
         }
     }
 
-    [HttpPost("CreateOrder")]
+    [HttpPost]
     [ProducesResponseType(201, Type = typeof(OrderDto))]
     [ProducesResponseType(400)]
-    public async Task<IResult> CreateOrderAsync([FromBody] OrderDtoCreate orderDtoCreate)
+    public async Task<ActionResult<OrderDto>> CreateOrderAsync([FromBody] OrderDtoCreate orderDtoCreate)
     {
         if (!ModelState.IsValid)
-        {
-            return Results.BadRequest(ModelState);
-        }
+            return BadRequest(ModelState);
         
         var createdOrderDto = await _orderService.CreateOrderAsync(orderDtoCreate);
 
-        return TypedResults.Created($"/api/{ControllerContext.ActionDescriptor.ControllerName}/{createdOrderDto.Id}",
-            createdOrderDto);
+        return Created($"/api/orders/{createdOrderDto.Id}", createdOrderDto);
     }
 
-    [HttpDelete("DeleteOrder/{id}")]
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(200, Type = typeof(OrderDto))]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<OrderDto>> UpdateOrderAsync(int id, [FromBody] OrderDtoUpdate orderDtoUpdate)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var updatedOrderDto = await _orderService.UpdateOrderAsync(id, orderDtoUpdate);
+        if (updatedOrderDto == null)
+            return NotFound($"Order with Id: {id} not found");
+
+        return Ok(updatedOrderDto);
+    }
+
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
-    public async Task<IResult> DeleteOrderAsync(int id)
+    public async Task<IActionResult> DeleteOrderAsync(int id)
     {
         var isDeleted = await _orderService.DeleteOrderAsync(id);
 
         if (!isDeleted)
         {
-            return Results.NotFound($"Order with Id: {id} not found");
+            return NotFound($"Order with Id: {id} not found");
         }
 
-        return TypedResults.NoContent();
+        return NoContent();
     }
 }

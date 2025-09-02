@@ -8,7 +8,7 @@ public class OrderDto
     public string UserId { get; set; }
     public OrderStatus Status { get; set; }
     public decimal Total { get; set; }
-    public List<OrderItemDto> Items { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
@@ -17,10 +17,14 @@ public class OrderDtoCreate
 {
     public string UserId { get; set; }
     public OrderStatus Status { get; set; }
-    public decimal Total { get; set; }
-    public List<OrderItemDto> Items { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new();
+}
+
+public class OrderDtoUpdate
+{
+    public string UserId { get; set; }
+    public OrderStatus Status { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new();
 }
 
 public class OrderItemDto
@@ -29,4 +33,28 @@ public class OrderItemDto
     public string Name { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+}
+
+public class OrderItemBriefDto
+{
+    public string Name { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+}
+
+public class OrderListItemDto
+{
+    public int Id { get; set; }
+    public string UserId { get; set; }
+    public OrderStatus Status { get; set; }
+    public decimal Total { get; set; }
+    public List<OrderItemBriefDto> Items { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+
+public class PagedOrdersResponseDto
+{
+    public List<OrderListItemDto> Orders { get; set; }
+    public int Total { get; set; }
 }

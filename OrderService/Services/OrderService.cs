@@ -8,9 +8,10 @@ namespace OrderService.Services;
 
 public interface IOrderService
 {
-    Task<List<OrderDto>> GetAllOrdersAsync();
+    Task<PagedOrdersResponseDto> GetPagedOrdersAsync(int offset, int limit);
     Task<OrderDto?> GetOrderByIdAsync(int id);
     Task<OrderDto> CreateOrderAsync(OrderDtoCreate orderDtoCreate);
+    Task<OrderDto?> UpdateOrderAsync(int id, OrderDtoUpdate orderDtoUpdate);
     Task<bool> DeleteOrderAsync(int id);
 }
 
@@ -27,15 +28,25 @@ public class OrderService : IOrderService
         _mapper = mapper;
     }
 
-    public async Task<List<OrderDto>> GetAllOrdersAsync()
+    public async Task<PagedOrdersResponseDto> GetPagedOrdersAsync(int offset, int limit)
     {
-        var orderEntities = await _unitOfWork.Set<Order>()
-            .Include(o => o.Items)
-            .ToListAsync();
-        
-        var orderDtos = _mapper.Map<List<OrderDto>>(orderEntities);
+        if (offset < 0) offset = 0;
+        if (limit <= 0) limit = 10;
+        if (limit > 100) limit = 100;
 
-        return orderDtos;
+        var query = _unitOfWork.Set<Order>()
+            .AsNoTracking()
+            .Include(o => o.Items)
+            .OrderBy(o => o.Id);
+
+        var total = await query.CountAsync();
+        var page = await query.Skip(offset).Take(limit).ToListAsync();
+
+        return new PagedOrdersResponseDto
+        {
+            Orders = _mapper.Map<List<OrderListItemDto>>(page),
+            Total = total
+        };
     }
 
     public async Task<OrderDto?> GetOrderByIdAsync(int id)
@@ -64,7 +75,36 @@ public class OrderService : IOrderService
     public async Task<OrderDto> CreateOrderAsync(OrderDtoCreate orderDtoCreate)
     {
         var orderEntity = _mapper.Map<Order>(orderDtoCreate);
+
+        orderEntity.Total = orderEntity.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
+        orderEntity.CreatedAt = DateTime.UtcNow;
+        orderEntity.UpdatedAt = DateTime.UtcNow;
+
         await _unitOfWork.Set<Order>().AddAsync(orderEntity);
+        await _unitOfWork.SaveChangesAsync();
+
+        return _mapper.Map<OrderDto>(orderEntity);
+    }
+
+    public async Task<OrderDto?> UpdateOrderAsync(int id, OrderDtoUpdate orderDtoUpdate)
+    {
+        var orderEntity = await _unitOfWork.Set<Order>()
+            .Include(o => o.Items)
+            .SingleOrDefaultAsync(o => o.Id == id);
+
+        if (orderEntity == null)
+        {
+            _logger.LogInformation("No order exists with ID: {OrderId}", id);
+            return null;
+        }
+
+        var newItems = _mapper.Map<List<Item>>(orderDtoUpdate.Items ?? new List<OrderItemDto>());
+
+        orderEntity.Items = newItems;
+
+        orderEntity.Total = orderEntity.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
+        orderEntity.UpdatedAt = DateTime.UtcNow;
+
         await _unitOfWork.SaveChangesAsync();
 
         return _mapper.Map<OrderDto>(orderEntity);
@@ -72,24 +112,22 @@ public class OrderService : IOrderService
 
     public async Task<bool> DeleteOrderAsync(int id)
     {
-        async Task<bool> isOrderNotExistsAsync()
-        {
-            var isOrderExists = await _unitOfWork.Set<Order>().AnyAsync(o => o.Id == id);
-            return !isOrderExists;
-        }
-
-        if (await isOrderNotExistsAsync())
-        {
-            string exMessage = $"No order exists with ID: {id}";
-            _logger.LogInformation(exMessage);
-            return false;
-        }
-
         var orderEntity = await _unitOfWork.Set<Order>()
             .Include(o => o.Items)
             .SingleOrDefaultAsync(o => o.Id == id);
+
+        if (orderEntity == null)
+        {
+            _logger.LogInformation("No order exists with ID: {OrderId}", id);
+            return false;
+        }
+
+        if (orderEntity.Items is { Count: > 0 })
+            _unitOfWork.Set<Item>().RemoveRange(orderEntity.Items);
+
         _unitOfWork.Set<Order>().Remove(orderEntity);
         await _unitOfWork.SaveChangesAsync();
+
         return true;
     }
 }

@@ -7,7 +7,7 @@ using Shared.Contracts;
 namespace PaymentService.Controllers;
 
 [ApiController]
-[Route("payment/orders")]
+[Route("api/payment/orders")]
 public class PaymentController : ControllerBase
 {
     private readonly IPublishEndpoint _publishEndpoint;
@@ -19,18 +19,19 @@ public class PaymentController : ControllerBase
         _orderServiceClient = orderServiceClient;
     }
 
-    [HttpPost("{id}/status")]
+    [HttpPost("{id:int}/status")]
     public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequestDto request)
     {
-        if (!await _orderServiceClient.OrderExistsAsync(id)) // Использовать клиент
-        {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        if (!await _orderServiceClient.OrderExistsAsync(id))
             return NotFound($"Order with ID {id} not found");
-        }
 
         await _publishEndpoint.Publish(new OrderStatusUpdated
         {
             OrderId = id,
-            Status = request.Status
+            Status = (int)request.Status
         });
 
         return Accepted(new { message = "status update published" });

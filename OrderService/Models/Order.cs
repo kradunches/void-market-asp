@@ -11,7 +11,7 @@ public class Order
     public string UserId { get; set; }
     public OrderStatus Status { get; set; }
     public decimal Total { get; set; }
-    public List<OrderItem> Items { get; set; }
+    public List<Item> Items { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

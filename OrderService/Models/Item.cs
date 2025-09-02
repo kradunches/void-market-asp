@@ -1,6 +1,6 @@
 namespace OrderService.Models;
 
-public class OrderItem
+public class Item
 {
     public int Id { get; set; }
     public int OrderId { get; set; }
