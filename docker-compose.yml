@@ -1,92 +1,53 @@
-version: '3.8'
+version: "3.8"
 services:
-  apigateway:
-    build: 
+  asp.apigateway:
+    build:
       context: .
       dockerfile: ./ApiGateway/Dockerfile
     ports:
-      - "8008:8000"
+      - "4030:4030"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
     networks:
-      - microservice_backend
-  orderservice:
-    build: 
+      - void-market-network
+
+  asp.order-svc:
+    build:
       context: .
       dockerfile: ./OrderService/Dockerfile
     ports:
-      - "8002:80"
+      - "4033:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
-    depends_on:
-      - pg
-      - rabbitmq
     networks:
-      - microservice_backend
-  paymentservice:
-    build: 
+      - void-market-network
+
+  asp.payment-svc:
+    build:
       context: .
       dockerfile: ./PaymentService/Dockerfile
     ports:
-      - "8004:80"
+      - "4032:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
-    depends_on:
-      - rabbitmq
     networks:
-      - microservice_backend
-  userservice:
-    build: 
+      - void-market-network
+
+  asp.users-svc:
+    build:
       context: .
       dockerfile: ./UserService/Dockerfile
     ports:
-      - "8006:80"
+      - "4031:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
-    depends_on:
-      - mongodb
     networks:
-      - microservice_backend
-  mongodb:
-    image: mongo
-    container_name: mongodb_void_asp
-    ports:
-      - "27017:27017"
-    restart: always
-    networks:
-      - microservice_backend
-  pg:
-    image: postgres
-    container_name: pg_void_asp
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: OrderDb
-    ports:
-      - "5436:5432"
-    volumes:
-      - ./pg_void_asp_data:/var/lib/postgresql/data
-    restart: always
-    networks:
-      - microservice_backend
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq_void_asp
-    ports:
-      - "5672:5672"     # основной порт для приложений
-      - "15672:15672"   # порт веб-интерфейса (http://localhost:15672)
-    volumes:
-      - ./rabbitmq_void_asp_data:/var/lib/rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    restart: always
-    networks:
-      - microservice_backend
+      - void-market-network
+
 networks:
-  microservice_backend:
+  void-market-network:
     driver: bridge
