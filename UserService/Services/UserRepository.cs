@@ -33,7 +33,7 @@ public class UserRepository
         return _mapper.Map<UserDto>(userModel);
     }
 
-    public async Task<User> CreateAsync(UserCreateDto user)
+    public async Task<UserDto> CreateAsync(UserCreateDto user)
     {
         var userModel = _mapper.Map<User>(user);
         userModel.Name = user.Name;
@@ -41,7 +41,7 @@ public class UserRepository
         userModel.CreatedAt = DateTime.UtcNow;
         userModel.UpdatedAt = DateTime.UtcNow;
         await _users.InsertOneAsync(userModel);
-        return userModel;
+        return _mapper.Map<UserDto>(userModel);
     }
 
     public async Task<bool> UpdateAsync(string id, UserCreateDto userDto)

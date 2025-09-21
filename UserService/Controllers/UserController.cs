@@ -6,7 +6,7 @@ using UserService.Services;
 namespace UserService.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("users")]
 public class UserController : ControllerBase
 {
     private readonly UserRepository _userRepository;
@@ -30,11 +30,11 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> Create(UserCreateDto userDto)
+    public async Task<ActionResult<UserDto>> Create(UserCreateDto userDto)
     {
-        var createdUser = await _userRepository.CreateAsync(userDto);
+        var createdUserDto = await _userRepository.CreateAsync(userDto);
         
-        return CreatedAtAction(nameof(GetAll), new { id = createdUser.Id }, createdUser);
+        return CreatedAtAction(nameof(GetAll), new { id = createdUserDto.Id }, createdUserDto);
     }
 
     [HttpPut("{id}")]

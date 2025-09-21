@@ -16,20 +16,24 @@ public static class RabbitMqExtensions
                 var host = environment.IsDevelopment()
                     ? configuration["RabbitMq:LocalHost"]
                     : configuration["RabbitMq:DockerHost"];
-                cfg.Host(host, "/", h =>
+
+                ushort port = environment.IsDevelopment()
+                    ? Convert.ToUInt16(configuration["RabbitMq:LocalPort"])
+                    : Convert.ToUInt16(configuration["RabbitMq:DockerPort"]);
+
+                cfg.Host(host, port, "/", h =>
                 {
                     h.Username(configuration["RabbitMq:Username"]);
                     h.Password(configuration["RabbitMq:Password"]);
                 });
 
-                // Настройка очереди order-status
                 cfg.ReceiveEndpoint(configuration["RabbitMq:QUEUE"], e =>
                 {
                     e.ConfigureConsumer<OrderStatusUpdatedConsumer>(context);
                 });
             });
         });
-        
+
         return services;
     }
 }

@@ -18,7 +18,7 @@ public class OrderServiceClient : IOrderServiceClient
 
     public async Task<bool> OrderExistsAsync(int orderId)
     {
-        var url = $"api/orders/{orderId}";
+        var url = $"orders/{orderId}";
         _logger.LogInformation("Проверяем заказ: {BaseAddress}{Url}", _httpClient.BaseAddress, url);
 
         var response = await _httpClient.GetAsync(url);

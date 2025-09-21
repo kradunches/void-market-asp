@@ -7,7 +7,7 @@ using OrderService.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Environment.IsDevelopment()
-    ? builder.Configuration.GetConnectionString("DockerConnectionString")
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
     : builder.Configuration.GetConnectionString("DockerConnectionString");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

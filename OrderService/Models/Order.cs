@@ -25,7 +25,7 @@ public class Order
 
 
 // todo: сделать пагинацию и такой dto:
-// http://localhost:4000/api/orders/all?offset=0&limit=10
+// http://localhost:4000/orders/all?offset=0&limit=10
 // {
 //     "orders": [
 //         {

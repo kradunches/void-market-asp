@@ -17,6 +17,21 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.Status)
+            .HasConversion<string>()
+            .HasColumnType("varchar(32)");
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.CreatedAt)
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql("NOW()");
+        
+        modelBuilder.Entity<Order>()
+            .Property(o => o.UpdatedAt)
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql("NOW()");
     }
 
     public async Task AddRangeAsync<TEntity>(IReadOnlyCollection<TEntity> entities) where TEntity : class

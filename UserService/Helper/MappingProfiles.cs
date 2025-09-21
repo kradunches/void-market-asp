@@ -7,7 +7,8 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
-        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<User, UserDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString())).ReverseMap();
         CreateMap<User, UserCreateDto>().ReverseMap();
     }
 }

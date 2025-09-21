@@ -7,7 +7,7 @@ using Shared.Contracts;
 namespace PaymentService.Controllers;
 
 [ApiController]
-[Route("api/payment/orders")]
+[Route("orders")]
 public class PaymentController : ControllerBase
 {
     private readonly IPublishEndpoint _publishEndpoint;

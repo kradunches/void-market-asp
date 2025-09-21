@@ -77,8 +77,8 @@ public class OrderService : IOrderService
         var orderEntity = _mapper.Map<Order>(orderDtoCreate);
 
         orderEntity.Total = orderEntity.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
-        orderEntity.CreatedAt = DateTime.UtcNow;
-        orderEntity.UpdatedAt = DateTime.UtcNow;
+        // orderEntity.CreatedAt = DateTime.UtcNow;
+        // orderEntity.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Set<Order>().AddAsync(orderEntity);
         await _unitOfWork.SaveChangesAsync();

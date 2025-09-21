@@ -9,7 +9,7 @@ using OrderService.Services;
 namespace OrderService.Controllers;
 
 [ApiController]
-[Route("api/orders")]
+[Route("orders")]
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -63,7 +63,7 @@ public class OrderController : ControllerBase
         
         var createdOrderDto = await _orderService.CreateOrderAsync(orderDtoCreate);
 
-        return Created($"/api/orders/{createdOrderDto.Id}", createdOrderDto);
+        return Created($"/orders/{createdOrderDto.Id}", createdOrderDto);
     }
 
     [HttpPut("{id:int}")]
