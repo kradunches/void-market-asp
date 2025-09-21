@@ -7,7 +7,7 @@ using OrderService.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Environment.IsDevelopment()
-    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    ? builder.Configuration.GetConnectionString("DockerConnectionString")
     : builder.Configuration.GetConnectionString("DockerConnectionString");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -37,7 +37,7 @@ var app = builder.Build();
 //     app.MapOpenApi();
 // }
 
-await app.ApplyMigrationsAsync();
+// await app.ApplyMigrationsAsync();
 
 app.MapOpenApi();
 app.UseSwagger();

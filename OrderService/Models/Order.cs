@@ -3,16 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OrderService.Models;
 
+[Table("orders")]
 public class Order
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id")]
     public int Id { get; set; }
+    [Column("user_id")]
     public string UserId { get; set; }
+    [Column("status")]
     public OrderStatus Status { get; set; }
+    [Column("total")]
     public decimal Total { get; set; }
     public List<Item> Items { get; set; }
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
+    [Column("updated_at")]
     public DateTime UpdatedAt { get; set; }
 }
 

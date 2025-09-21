@@ -23,7 +23,7 @@ public static class RabbitMqExtensions
                 });
 
                 // Настройка очереди order-status
-                cfg.ReceiveEndpoint("order-status", e =>
+                cfg.ReceiveEndpoint(configuration["RabbitMq:QUEUE"], e =>
                 {
                     e.ConfigureConsumer<OrderStatusUpdatedConsumer>(context);
                 });

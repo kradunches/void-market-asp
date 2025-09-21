@@ -104,7 +104,7 @@ app.MapReverseProxy();
 // app.MapOpenApi();
 app.UseHttpsRedirection();
 
-app.Run("http://0.0.0.0:8000");
+app.Run("http://0.0.0.0:80");
 
 // DTOs used by aggregator
 // задублировал эти dto чтобы не париться с генерацией клиентов через OpenAPI
