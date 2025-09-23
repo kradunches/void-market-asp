@@ -27,11 +27,8 @@ public class OrderStatusUpdatedConsumer : IConsumer<OrderStatusUpdated>
         if (order == null)
             return;
         
-        if (Enum.IsDefined(typeof(OrderStatus), message.Status))
-        {
-            order.Status = (OrderStatus)message.Status;
-            order.UpdatedAt = DateTime.UtcNow;
-            await _unitOfWork.SaveChangesAsync();
-        }
+        order.Status = message.Status.ToLowerInvariant();
+        order.UpdatedAt = DateTime.UtcNow;
+        await _unitOfWork.SaveChangesAsync();
     }
 }

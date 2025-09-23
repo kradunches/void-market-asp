@@ -1,6 +1,6 @@
 services:
   asp.apigateway:
-    container_name: void-market-asp.api-gateway
+    container_name: void-market-asp-asp.api-gateway
     build:
       context: .
       dockerfile: ./ApiGateway/Dockerfile
@@ -11,6 +11,10 @@ services:
       - ASPNETCORE_URLS=http://0.0.0.0:80
     networks:
       - void-market-network
+    depends_on:
+      - asp.order-svc
+      - asp.payment-svc
+      - asp.users-svc
 
   asp.order-svc:
     container_name: void-market-asp-asp.order-svc
@@ -24,6 +28,9 @@ services:
       - ASPNETCORE_URLS=http://0.0.0.0:80
     networks:
       - void-market-network
+    depends_on:
+      - postgres
+      - rabbitmq
 
   asp.payment-svc:
     container_name: void-market-asp-asp.payment-svc
@@ -37,6 +44,9 @@ services:
       - ASPNETCORE_URLS=http://0.0.0.0:80
     networks:
       - void-market-network
+    depends_on:
+      - asp.order-svc
+      - rabbitmq
 
   asp.users-svc:
     container_name: void-market-asp-asp.users-svc
@@ -68,7 +78,7 @@ services:
 #    restart: unless-stopped
 #    networks:
 #      - void-market-network
-#        
+#
 #  mongo-express:
 #    image: mongo-express
 #    container_name: mongo-express_void_asp
@@ -86,7 +96,7 @@ services:
 #    restart: unless-stopped
 #    networks:
 #      - void-market-network
-#        
+#
 #  postgres:
 #    image: postgres:15
 #    container_name: postgres_void_asp
@@ -101,7 +111,12 @@ services:
 #    restart: always
 #    networks:
 #      - void-market-network
-#        
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U admin -d void-market"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#
 #  rabbitmq:
 #    image: rabbitmq:3-management
 #    container_name: rabbitmq_void_asp
@@ -116,10 +131,10 @@ services:
 #    restart: always
 #    networks:
 #      - void-market-network
-#volumes:
-#  mongo-data:
-#  pgdata:
-#
+volumes:
+  mongo-data:
+  pgdata:
+
 networks:
   void-market-network:
     name: void-market-network

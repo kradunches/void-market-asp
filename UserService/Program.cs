@@ -15,9 +15,14 @@ builder.Services.AddSingleton<IMongoClient>(sp => new MongoClient(mongoConnectio
 builder.Services.AddTransient<UserRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
-builder.Services.AddEndpointsApiExplorer();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenApi();
+    builder.Services.AddSwaggerGen();
+    builder.Services.AddEndpointsApiExplorer();
+}
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -28,9 +33,12 @@ var app = builder.Build();
 //     app.MapOpenApi();
 // }
 
-app.MapOpenApi();
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 

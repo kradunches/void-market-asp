@@ -2,7 +2,7 @@ namespace PaymentService.Controller;
 
 public interface IOrderServiceClient
 {
-    Task<bool> OrderExistsAsync(int orderId);
+    Task<bool> OrderExistsAsync(long orderId);
 }
 
 public class OrderServiceClient : IOrderServiceClient
@@ -16,7 +16,7 @@ public class OrderServiceClient : IOrderServiceClient
         _logger = logger;
     }
 
-    public async Task<bool> OrderExistsAsync(int orderId)
+    public async Task<bool> OrderExistsAsync(long orderId)
     {
         var url = $"orders/{orderId}";
         _logger.LogInformation("Проверяем заказ: {BaseAddress}{Url}", _httpClient.BaseAddress, url);

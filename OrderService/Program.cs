@@ -19,9 +19,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 builder.Services.AddScoped<IOrderService, OrderService.Services.OrderService>();
 
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
-builder.Services.AddEndpointsApiExplorer();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenApi();
+    builder.Services.AddSwaggerGen();
+    builder.Services.AddEndpointsApiExplorer();
+}
 builder.Services.AddRabbitMq(builder.Configuration, builder.Environment);
 
 builder.Services.AddControllers()
@@ -39,9 +42,12 @@ var app = builder.Build();
 
 // await app.ApplyMigrationsAsync();
 
-app.MapOpenApi();
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 

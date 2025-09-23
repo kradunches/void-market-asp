@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ApiGateway.Controllers;
 
 [ApiController]
-[Route("orders")]
+[Route("api/orders")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderAggregateService _orderAggregateService;
@@ -16,14 +16,14 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<ActionResult<PagedResponse<OrderResponse>>> GetAllOrders([FromQuery] int offset = 0, [FromQuery] int limit = 10)
+    public async Task<ActionResult<PagedOrdersResponse>> GetAllOrders([FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
         var result = await _orderAggregateService.GetAllOrdersAsync(offset, limit);
         return Ok(result);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<OrderResponse>> GetOrderById(int id)
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<OrderDetailsResponse>> GetOrderById(long id)
     {
         var order = await _orderAggregateService.GetOrderByIdAsync(id);
         if (order == null)
@@ -33,16 +33,19 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<OrderResponse>> CreateOrder(CreateOrderRequest request)
+    public async Task<ActionResult<CreateOrderResponse>> CreateOrder(CreateOrderRequest request)
     {
         var order = await _orderAggregateService.CreateOrderAsync(request);
-        return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
+        // В ответе по контракту нет Id, поэтому в Location укажем коллекцию
+        return CreatedAtAction(nameof(GetAllOrders), null, order);
     }
 
-    [HttpPost("{id:int}/status")]
-    public async Task<ActionResult<OrderResponse>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequest request)
+    [HttpPost("{id:long}/status")]
+    public async Task<IActionResult> UpdateOrderStatus(long id, [FromBody] UpdateOrderStatusRequest request)
     {
         var order = await _orderAggregateService.UpdateOrderStatusAsync(id, request);
-        return Ok(order);
+        if (order == null)
+            return NotFound();
+        return Ok();
     }
 }

@@ -9,10 +9,10 @@ namespace OrderService.Services;
 public interface IOrderService
 {
     Task<PagedOrdersResponseDto> GetPagedOrdersAsync(int offset, int limit);
-    Task<OrderDto?> GetOrderByIdAsync(int id);
+    Task<OrderDto?> GetOrderByIdAsync(long id);
     Task<OrderDto> CreateOrderAsync(OrderDtoCreate orderDtoCreate);
-    Task<OrderDto?> UpdateOrderAsync(int id, OrderDtoUpdate orderDtoUpdate);
-    Task<bool> DeleteOrderAsync(int id);
+    Task<OrderDto?> UpdateOrderAsync(long id, OrderDtoUpdate orderDtoUpdate);
+    Task<bool> DeleteOrderAsync(long id);
 }
 
 public class OrderService : IOrderService
@@ -49,7 +49,7 @@ public class OrderService : IOrderService
         };
     }
 
-    public async Task<OrderDto?> GetOrderByIdAsync(int id)
+    public async Task<OrderDto?> GetOrderByIdAsync(long id)
     {
         async Task<bool> isOrderNotExistsAsync()
         {
@@ -76,9 +76,18 @@ public class OrderService : IOrderService
     {
         var orderEntity = _mapper.Map<Order>(orderDtoCreate);
 
+        var now = DateTime.UtcNow;
+
+        orderEntity.CreatedAt = now;
+        orderEntity.UpdatedAt = now;
+        
+        foreach (var i in orderEntity.Items)
+        {
+            i.CreatedAt = now;
+            i.UpdatedAt = now;
+        }
+        
         orderEntity.Total = orderEntity.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
-        // orderEntity.CreatedAt = DateTime.UtcNow;
-        // orderEntity.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Set<Order>().AddAsync(orderEntity);
         await _unitOfWork.SaveChangesAsync();
@@ -86,7 +95,7 @@ public class OrderService : IOrderService
         return _mapper.Map<OrderDto>(orderEntity);
     }
 
-    public async Task<OrderDto?> UpdateOrderAsync(int id, OrderDtoUpdate orderDtoUpdate)
+    public async Task<OrderDto?> UpdateOrderAsync(long id, OrderDtoUpdate orderDtoUpdate)
     {
         var orderEntity = await _unitOfWork.Set<Order>()
             .Include(o => o.Items)
@@ -97,8 +106,16 @@ public class OrderService : IOrderService
             _logger.LogInformation("No order exists with ID: {OrderId}", id);
             return null;
         }
+        
+        var now = DateTime.UtcNow;
 
         var newItems = _mapper.Map<List<Item>>(orderDtoUpdate.Items ?? new List<OrderItemDto>());
+        
+        foreach (var i in newItems)
+        {
+            i.CreatedAt = now;
+            i.UpdatedAt = now;
+        }
 
         orderEntity.Items = newItems;
 
@@ -110,7 +127,7 @@ public class OrderService : IOrderService
         return _mapper.Map<OrderDto>(orderEntity);
     }
 
-    public async Task<bool> DeleteOrderAsync(int id)
+    public async Task<bool> DeleteOrderAsync(long id)
     {
         var orderEntity = await _unitOfWork.Set<Order>()
             .Include(o => o.Items)

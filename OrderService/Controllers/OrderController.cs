@@ -32,10 +32,10 @@ public class OrderController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:long}")]
     [ProducesResponseType(200, Type = typeof(OrderDto))]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<OrderDto>> GetOrderByIdAsync(int id)
+    public async Task<ActionResult<OrderDto>> GetOrderByIdAsync(long id)
     {
         if (!ModelState.IsValid)
         {
@@ -66,10 +66,10 @@ public class OrderController : ControllerBase
         return Created($"/orders/{createdOrderDto.Id}", createdOrderDto);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:long}")]
     [ProducesResponseType(200, Type = typeof(OrderDto))]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<OrderDto>> UpdateOrderAsync(int id, [FromBody] OrderDtoUpdate orderDtoUpdate)
+    public async Task<ActionResult<OrderDto>> UpdateOrderAsync(long id, [FromBody] OrderDtoUpdate orderDtoUpdate)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -81,10 +81,10 @@ public class OrderController : ControllerBase
         return Ok(updatedOrderDto);
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:long}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteOrderAsync(int id)
+    public async Task<IActionResult> DeleteOrderAsync(long id)
     {
         var isDeleted = await _orderService.DeleteOrderAsync(id);
 

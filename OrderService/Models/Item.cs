@@ -9,10 +9,10 @@ public class Item
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     [Column("order_id")]
-    public int OrderId { get; set; }
+    public long OrderId { get; set; }
 
     [ForeignKey("OrderId")]
     public Order Order { get; set; }
@@ -21,8 +21,14 @@ public class Item
     public string Name { get; set; }
 
     [Column("quantity")]
-    public int Quantity { get; set; }
+    public long Quantity { get; set; }
 
     [Column("unit_price")]
     public decimal UnitPrice { get; set; }
+    
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; }
 }

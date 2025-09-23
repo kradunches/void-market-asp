@@ -19,8 +19,8 @@ public class PaymentController : ControllerBase
         _orderServiceClient = orderServiceClient;
     }
 
-    [HttpPost("{id:int}/status")]
-    public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequestDto request)
+    [HttpPost("{id:long}/status")]
+    public async Task<IActionResult> UpdateOrderStatus(long id, [FromBody] UpdateOrderStatusRequestDto request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -31,7 +31,7 @@ public class PaymentController : ControllerBase
         await _publishEndpoint.Publish(new OrderStatusUpdated
         {
             OrderId = id,
-            Status = (int)request.Status
+            Status = request.Status.ToString().ToLowerInvariant()
         });
 
         return Accepted(new { message = "status update published" });

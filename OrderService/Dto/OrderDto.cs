@@ -4,9 +4,9 @@ namespace OrderService.Dto;
 
 public class OrderDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string UserId { get; set; }
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     public decimal Total { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
     public DateTime CreatedAt { get; set; }
@@ -16,37 +16,37 @@ public class OrderDto
 public class OrderDtoCreate
 {
     public string UserId { get; set; }
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
 }
 
 public class OrderDtoUpdate
 {
     public string UserId { get; set; }
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
 }
 
 public class OrderItemDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string Name { get; set; }
-    public int Quantity { get; set; }
+    public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 }
 
 public class OrderItemBriefDto
 {
     public string Name { get; set; }
-    public int Quantity { get; set; }
+    public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 }
 
 public class OrderListItemDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string UserId { get; set; }
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     public decimal Total { get; set; }
     public List<OrderItemBriefDto> Items { get; set; }
     public DateTime CreatedAt { get; set; }

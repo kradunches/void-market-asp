@@ -9,11 +9,11 @@ public class Order
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
-    public int Id { get; set; }
+    public long Id { get; set; }
     [Column("user_id")]
     public string UserId { get; set; }
     [Column("status")]
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     [Column("total")]
     public decimal Total { get; set; }
     public List<Item> Items { get; set; }
@@ -152,8 +152,22 @@ public class Order
 //                 }
 //             ],
 //             "createdAt": "2025-06-18T17:34:09.899064Z",
-//             "updatedAt": "2025-06-18
-// "unitPrice": 60.3
+//             "updatedAt": "2025-06-18T17:34:09.899064Z"
+//         },
+//         {
+//             "id": 5,
+//             "user": {
+//                 "id": "6852f891466a198e14fe93a6",
+//                 "name": "Annette Bruen",
+//                 "email": "Annie5@hotmail.com"
+//             },
+//             "status": "pending",
+//             "total": 604.5,
+//             "items": [
+//                 {
+//                     "name": "Handcrafted Wooden Pants",
+//                     "quantity": 1,
+//                     "unitPrice": 60.3
 //                 }
 //             ],
 //             "createdAt": "2025-06-18T17:34:09.903385Z",

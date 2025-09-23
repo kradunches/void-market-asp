@@ -1,23 +1,16 @@
 namespace ApiGateway.Models;
 
-public class UserDto
-{
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string Email { get; set; }
-}
-
 public class OrderItemDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string Name { get; set; }
-    public int Quantity { get; set; }
+    public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 }
 
 public class OrderDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string UserId { get; set; }
     public string Status { get; set; }
     public decimal Total { get; set; }
@@ -28,7 +21,7 @@ public class OrderDto
 
 public class OrderListItemDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string UserId { get; set; }
     public string Status { get; set; }
     public decimal Total { get; set; }
@@ -40,7 +33,7 @@ public class OrderListItemDto
 public class OrderItemBriefDto
 {
     public string Name { get; set; }
-    public int Quantity { get; set; }
+    public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 }
 
@@ -53,13 +46,14 @@ public class PagedOrdersDto
 public class CreateOrderItemDto
 {
     public string Name { get; set; }
-    public int Quantity { get; set; }
+    public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 }
 
 public class CreateOrderDto
 {
     public string UserId { get; set; }
+    public string Status { get; set; }
     public List<CreateOrderItemDto> Items { get; set; } = new();
 }
 
