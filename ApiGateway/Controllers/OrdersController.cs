@@ -40,7 +40,7 @@ public class OrdersController : ControllerBase
         return CreatedAtAction(nameof(GetAllOrders), null, order);
     }
 
-    [HttpPost("{id:long}/status")]
+    [HttpPost("/api/payment/orders/{id:long}/status")]
     public async Task<IActionResult> UpdateOrderStatus(long id, [FromBody] UpdateOrderStatusRequest request)
     {
         var order = await _orderAggregateService.UpdateOrderStatusAsync(id, request);

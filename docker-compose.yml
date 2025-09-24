@@ -46,7 +46,6 @@ services:
       - void-market-network
     depends_on:
       - asp.order-svc
-      - rabbitmq
 
   asp.users-svc:
     container_name: void-market-asp-asp.users-svc
@@ -60,6 +59,8 @@ services:
       - ASPNETCORE_URLS=http://0.0.0.0:80
     networks:
       - void-market-network
+    depends_on:
+      - mongo
         
 ##############################################
 # оставил для шаблона
