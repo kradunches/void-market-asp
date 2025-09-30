@@ -176,6 +176,8 @@ services:
     depends_on: [prometheus]
     ports:
       - "3000:3000"
+    networks:
+      - void-market-network
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=password
