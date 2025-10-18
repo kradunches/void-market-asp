@@ -40,6 +40,8 @@ public class OrderItemBriefDto
     public string Name { get; set; }
     public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class OrderListItemDto

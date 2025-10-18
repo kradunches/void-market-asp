@@ -11,10 +11,11 @@ public class OrderItemResponse
 
 public class OrderItemWithIdResponse
 {
-    public long Id { get; set; }
     public required string Name { get; set; }
     public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class UserResponse
@@ -41,7 +42,7 @@ public class OrderDetailsResponse
     public required string UserId { get; set; }
     public required string Status { get; set; }
     public decimal Total { get; set; }
-    public List<OrderItemWithIdResponse> Items { get; set; } = new();
+    public List<OrderItemBriefDto> Items { get; set; } = new();
     public UserResponse? User { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

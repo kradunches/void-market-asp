@@ -38,6 +38,7 @@ public class UserRepository
         var userModel = _mapper.Map<User>(user);
         userModel.Name = user.Name;
         userModel.Email = user.Email;
+        userModel.Password = user.Password;
         userModel.CreatedAt = DateTime.UtcNow;
         userModel.UpdatedAt = DateTime.UtcNow;
         await _users.InsertOneAsync(userModel);

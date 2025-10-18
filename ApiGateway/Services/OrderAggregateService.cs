@@ -38,19 +38,15 @@ public class OrderAggregateService : IOrderAggregateService
         async Task<OrderDetailsResponse> BuildDetailsAsync(OrderListItemDto brief)
         {
             // Детали заказа
-            var orderDetailResp = await ordersClient.GetAsync($"orders/{brief.Id}");
-            orderDetailResp.EnsureSuccessStatusCode();
-            var fullOrder = await orderDetailResp.Content.ReadFromJsonAsync<OrderDto>();
-            if (fullOrder == null) throw new InvalidOperationException($"Order {brief.Id} not found after fetch");
 
             // Пользователь
             UserResponse? user = null;
-            if (!string.IsNullOrWhiteSpace(fullOrder.UserId))
+            if (!string.IsNullOrWhiteSpace(brief.UserId))
             {
-                if (!userCache.TryGetValue(fullOrder.UserId, out var cached))
+                if (!userCache.TryGetValue(brief.UserId, out var cached))
                 {
-                    user = await FetchUserAsync(usersClient, fullOrder.UserId);
-                    if (user != null) userCache[fullOrder.UserId] = user;
+                    user = await FetchUserAsync(usersClient, brief.UserId);
+                    if (user != null) userCache[brief.UserId] = user;
                 }
                 else
                 {
@@ -60,20 +56,14 @@ public class OrderAggregateService : IOrderAggregateService
 
             return new OrderDetailsResponse
             {
-                Id = fullOrder.Id,
-                UserId = fullOrder.UserId,
-                Status = fullOrder.Status.ToLowerInvariant(),
-                Total = fullOrder.Total,
-                Items = fullOrder.Items.Select(i => new OrderItemWithIdResponse
-                {
-                    Id = i.Id,
-                    Name = i.Name,
-                    Quantity = i.Quantity,
-                    UnitPrice = i.UnitPrice
-                }).ToList(),
+                Id = brief.Id,
+                UserId = brief.UserId,
+                Status = brief.Status.ToLowerInvariant(),
+                Total = brief.Total,
+                Items = brief.Items,
                 User = user,
-                CreatedAt = fullOrder.CreatedAt,
-                UpdatedAt = fullOrder.UpdatedAt
+                CreatedAt = brief.CreatedAt,
+                UpdatedAt = brief.UpdatedAt
             };
         }
 
@@ -108,13 +98,7 @@ public class OrderAggregateService : IOrderAggregateService
             UserId = order.UserId,
             Status = order.Status.ToLowerInvariant(),
             Total = order.Total,
-            Items = order.Items.Select(i => new OrderItemWithIdResponse
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Quantity = i.Quantity,
-                UnitPrice = i.UnitPrice
-            }).ToList(),
+            Items = order.Items,
             User = user,
             CreatedAt = order.CreatedAt,
             UpdatedAt = order.UpdatedAt
@@ -187,13 +171,7 @@ public class OrderAggregateService : IOrderAggregateService
             UserId = updatedOrder.UserId,
             Status = updatedOrder.Status.ToLowerInvariant(),
             Total = updatedOrder.Total,
-            Items = updatedOrder.Items.Select(i => new OrderItemWithIdResponse
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Quantity = i.Quantity,
-                UnitPrice = i.UnitPrice
-            }).ToList(),
+            Items = updatedOrder.Items,
             User = user,
             CreatedAt = updatedOrder.CreatedAt,
             UpdatedAt = updatedOrder.UpdatedAt

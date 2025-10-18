@@ -6,6 +6,8 @@ public class OrderItemDto
     public string Name { get; set; }
     public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class OrderDto
@@ -14,7 +16,7 @@ public class OrderDto
     public string UserId { get; set; }
     public string Status { get; set; }
     public decimal Total { get; set; }
-    public List<OrderItemDto> Items { get; set; } = new();
+    public List<OrderItemBriefDto> Items { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
@@ -32,9 +34,12 @@ public class OrderListItemDto
 
 public class OrderItemBriefDto
 {
+    public long Id { get; set; }
     public string Name { get; set; }
     public long Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class PagedOrdersDto
