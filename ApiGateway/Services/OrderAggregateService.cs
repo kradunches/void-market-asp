@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
 using ApiGateway.Models;
@@ -28,30 +29,24 @@ public class OrderAggregateService : IOrderAggregateService
         var ordersClient = _httpClientFactory.CreateClient("orders");
         var usersClient = _httpClientFactory.CreateClient("users");
 
-        var pagedOrders = await ordersClient.GetFromJsonAsync<PagedOrdersDto>($"orders/all?offset={offset}&limit={limit}");
+        var pagedOrders =
+            await ordersClient.GetFromJsonAsync<PagedOrdersDto>($"orders/all?offset={offset}&limit={limit}");
         if (pagedOrders?.Orders == null)
             throw new InvalidOperationException("Orders service unavailable");
 
-        // Для каждого заказа достаём полные данные (чтобы получить id у items) и пользователя
-        var userCache = new Dictionary<string, UserResponse>();
+        var userFetchTasks = new ConcurrentDictionary<string, Task<UserResponse?>>();
 
         async Task<OrderDetailsResponse> BuildDetailsAsync(OrderListItemDto brief)
         {
-            // Детали заказа
-
-            // Пользователь
             UserResponse? user = null;
-            if (!string.IsNullOrWhiteSpace(brief.UserId))
+            if (!string.IsNullOrEmpty(brief.UserId))
             {
-                if (!userCache.TryGetValue(brief.UserId, out var cached))
-                {
-                    user = await FetchUserAsync(usersClient, brief.UserId);
-                    if (user != null) userCache[brief.UserId] = user;
-                }
-                else
-                {
-                    user = cached;
-                }
+                var fetchTask = userFetchTasks.GetOrAdd(brief.UserId, id => FetchUserAsync(usersClient, id));
+
+                user = await fetchTask.ConfigureAwait(false);
+
+                if (user == null)
+                    userFetchTasks.TryRemove(brief.UserId, out _);
             }
 
             return new OrderDetailsResponse
@@ -153,6 +148,7 @@ public class OrderAggregateService : IOrderAggregateService
         {
             return null;
         }
+
         response.EnsureSuccessStatusCode();
 
         var orderResponse = await ordersClient.GetAsync($"orders/{orderId}");
