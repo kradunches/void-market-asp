@@ -77,3 +77,8 @@ public class UpdateOrderStatusRequest
 {
     public required string Status { get; set; }
 }
+
+public sealed class StatusUpdatePublishedResponse
+{
+    public string Message { get; init; } = "status update published";
+}

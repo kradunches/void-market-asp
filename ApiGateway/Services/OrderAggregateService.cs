@@ -10,7 +10,7 @@ public interface IOrderAggregateService
     Task<PagedOrdersResponse> GetAllOrdersAsync(int offset, int limit);
     Task<OrderDetailsResponse?> GetOrderByIdAsync(long id);
     Task<CreateOrderResponse> CreateOrderAsync(CreateOrderRequest request);
-    Task<OrderDetailsResponse?> UpdateOrderStatusAsync(long orderId, UpdateOrderStatusRequest request);
+    Task<StatusUpdatePublishedResponse?> UpdateOrderStatusAsync(long orderId, UpdateOrderStatusRequest request);
 }
 
 public class OrderAggregateService : IOrderAggregateService
@@ -136,11 +136,9 @@ public class OrderAggregateService : IOrderAggregateService
         };
     }
 
-    public async Task<OrderDetailsResponse?> UpdateOrderStatusAsync(long orderId, UpdateOrderStatusRequest request)
+    public async Task<StatusUpdatePublishedResponse?> UpdateOrderStatusAsync(long orderId, UpdateOrderStatusRequest request)
     {
         var paymentClient = _httpClientFactory.CreateClient("payments");
-        var ordersClient = _httpClientFactory.CreateClient("orders");
-        var usersClient = _httpClientFactory.CreateClient("users");
 
         var updateDto = new UpdateOrderStatusDto { Status = request.Status };
         var response = await paymentClient.PostAsJsonAsync($"orders/{orderId}/status", updateDto);
@@ -151,26 +149,9 @@ public class OrderAggregateService : IOrderAggregateService
 
         response.EnsureSuccessStatusCode();
 
-        var orderResponse = await ordersClient.GetAsync($"orders/{orderId}");
-        if (orderResponse.StatusCode == HttpStatusCode.NotFound)
-            return null;
-        orderResponse.EnsureSuccessStatusCode();
-        var updatedOrder = await orderResponse.Content.ReadFromJsonAsync<OrderDto>();
-        if (updatedOrder == null)
-            throw new InvalidOperationException("Failed to get updated order");
-
-        var user = await FetchUserAsync(usersClient, updatedOrder.UserId);
-
-        return new OrderDetailsResponse
+        return new StatusUpdatePublishedResponse
         {
-            Id = updatedOrder.Id,
-            UserId = updatedOrder.UserId,
-            Status = updatedOrder.Status.ToLowerInvariant(),
-            Total = updatedOrder.Total,
-            Items = updatedOrder.Items,
-            User = user,
-            CreatedAt = updatedOrder.CreatedAt,
-            UpdatedAt = updatedOrder.UpdatedAt
+            Message = "status update publised"
         };
     }
 
